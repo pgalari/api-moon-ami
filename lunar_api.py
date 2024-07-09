@@ -62,8 +62,6 @@ def calculate_moon_sign(observer):
     return 'Desconocida', 0
 
 @app.route('/')
-def index():
-    return render_template('index.html')
 
 @app.route('/lunar_info', methods=['GET'])
 def lunar_info():

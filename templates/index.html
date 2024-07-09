@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información Lunar</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .result-section {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Información Lunar</h1>
+        <form id="lunar-form">
+            <div class="form-group">
+                <label for="day">Día:</label>
+                <select class="form-control" id="day" name="day"></select>
+            </div>
+            <div class="form-group">
+                <label for="month">Mes:</label>
+                <select class="form-control" id="month" name="month"></select>
+            </div>
+            <div class="form-group">
+                <label for="year">Año:</label>
+                <select class="form-control" id="year" name="year"></select>
+            </div>
+            <div class="form-group">
+                <label for="hour">Hora:</label>
+                <select class="form-control" id="hour" name="hour"></select>
+            </div>
+            <div class="form-group">
+                <label for="minute">Minuto:</label>
+                <select class="form-control" id="minute" name="minute"></select>
+            </div>
+            <div class="form-group">
+                <label for="location">Ubicación:</label>
+                <input type="text" class="form-control" id="location" name="location" placeholder="Ingrese una ubicación">
+            </div>
+            <button type="submit" class="btn btn-primary">Obtener Información Lunar</button>
+        </form>
+        <div id="result" class="result-section"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Rellenar los selectores de fecha y hora
+            const now = new Date();
+            for (let i = 1; i <= 31; i++) {
+                $('#day').append(`<option value="${i}">${i}</option>`);
+            }
+            for (let i = 1; i <= 12; i++) {
+                $('#month').append(`<option value="${i}">${i}</option>`);
+            }
+            for (let i = 1900; i <= now.getFullYear(); i++) {
+                $('#year').append(`<option value="${i}">${i}</option>`);
+            }
+            for (let i = 0; i <= 23; i++) {
+                $('#hour').append(`<option value="${i}">${i}</option>`);
+            }
+            for (let i = 0; i <= 59; i++) {
+                $('#minute').append(`<option value="${i}">${i}</option>`);
+            }
+
+            // Seleccionar la fecha y hora actual
+            $('#day').val(now.getDate());
+            $('#month').val(now.getMonth() + 1);
+            $('#year').val(now.getFullYear());
+            $('#hour').val(now.getHours());
+            $('#minute').val(now.getMinutes());
+
+            function fetchLunarInfo(datetime, location) {
+                $.ajax({
+                    url: '/lunar_info',
+                    type: 'GET',
+                    data: { datetime: datetime, location: location },
+                    success: function (data) {
+                        $('#result').html(`
+                            <p><strong>Fecha y Hora:</strong> ${data.datetime}</p>
+                            <p><strong>Ubicación:</strong> ${data.location}</p>
+                            <p><strong>Latitud:</strong> ${data.latitude}</p>
+                            <p><strong>Longitud:</strong> ${data.longitude}</p>
+                            <p><strong>Fase Lunar:</strong> ${data.lunar_phase} (${data.lunar_phase_text})</p>
+                            <p><strong>Signo Lunar:</strong> ${data.lunar_sign}</p>
+                            <p><strong>Luna Ascendente:</strong> ${data.moon_ascending ? 'Sí' : 'No'}</p>
+                        `);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#result').html(`<p>Error: ${xhr.responseJSON.error}</p>`);
+                    }
+                });
+            }
+
+            // Obtener información lunar al cargar la página
+            const initialDatetime = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`;
+            fetchLunarInfo(initialDatetime, 'Greenwich');
+
+            // Manejar el envío del formulario
+            $('#lunar-form').submit(function (event) {
+                event.preventDefault();
+                const day = $('#day').val();
+                const month = $('#month').val();
+                const year = $('#year').val();
+                const hour = $('#hour').val();
+                const minute = $('#minute').val();
+                const location = $('#location').val();
+                const datetime = `${day}-${month}-${year} ${hour}:${minute}`;
+                fetchLunarInfo(datetime, location);
+            });
+        });
+    </script>
+</body>
+</html>

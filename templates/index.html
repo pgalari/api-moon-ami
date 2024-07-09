@@ -71,57 +71,62 @@
                 $('#minute').append(`<option value="${i}">${i}</option>`);
             }
 
-            // Seleccionar la fecha y hora actual
-            $('#day').val(now.getDate());
-            $('#month').val(now.getMonth() + 1);
-            $('#year').val(now.getFullYear());
-            $('#hour').val(now.getHours());
-            $('#minute').val(now.getMinutes());
+            // Manejo del formulario
+            $('#lunar-form').submit(function(event) {
+                event.preventDefault();
+                const day = $('#day').val();
+                const month = $('#month').val();
+                const year = $('#year').val();
+                const hour = $('#hour').val();
+                const minute = $('#minute').val();
+                const location = $('#location').val();
 
-            function fetchLunarInfo(datetime, location) {
+                const datetime = `${day}-${month}-${year} ${hour}:${minute}`;
+
                 $.ajax({
                     url: '/lunar_info',
                     type: 'GET',
-                    data: { datetime: datetime, location: location },
-                    success: function (data) {
-                        $('#result').html(`
-                            <p><strong>Fecha y Hora:</strong> ${data.datetime}</p>
-                            <p><strong>Ubicación:</strong> ${data.location}</p>
-                            <p><strong>Latitud:</strong> ${data.latitude}</p>
-                            <p><strong>Longitud:</strong> ${data.longitude}</p>
-                            <p><strong>Fase Lunar:</strong> ${data.lunar_phase_text} (${data.lunar_phase})</p>
-                            <p><strong>Signo Lunar:</strong> ${data.lunar_sign} (${data.moon_sign_degree}°)</p>
-                            <p><strong>Elipse Lunar:</strong> ${data.moon_ascending ? 'Ascendente' : 'Descendente'}</p>
-                        `);
+                    data: {
+                        datetime: datetime,
+                        location: location
                     },
-                    error: function (xhr) {
-                        $('#result').html(`<p class="text-danger">Error: ${xhr.responseJSON.error}</p>`);
+                    success: function(data) {
+                        if (data.error) {
+                            $('#result').html(`<div class="alert alert-danger">${data.error}</div>`);
+                        } else {
+                            $('#result').html(`
+                                <p><strong>Fecha y Hora:</strong> ${data.datetime}</p>
+                                <p><strong>Ubicación:</strong> ${data.location}</p>
+                                <p><strong>Latitud:</strong> ${data.latitude}</p>
+                                <p><strong>Longitud:</strong> ${data.longitude}</p>
+                                <p><strong>Fase Lunar:</strong> ${data.lunar_phase_text} (${data.lunar_phase})</p>
+                                <p><strong>Signo Lunar:</strong> ${data.lunar_sign} (${data.moon_sign_degree}°)</p>
+                                <p><strong>Elipse Lunar:</strong> ${data.moon_ascending ? 'Ascendente' : 'Descendente'}</p>
+                            `);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#result').html(`<div class="alert alert-danger">${error}</div>`);
                     }
                 });
-            }
-
-            // Obtener información lunar al cargar la página
-            fetchLunarInfo(`${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`, 'Greenwich');
-
-            // Configuración de autocompletado para la ubicación
-            $('#location').typeahead({
-                source: function (query, process) {
-                    return $.get('https://nominatim.openstreetmap.org/search', { q: query, format: 'json' }, function (data) {
-                        return process(data.map(item => item.display_name));
-                    });
-                }
             });
 
-            // Manejar el envío del formulario
-            $('#lunar-form').submit(function (event) {
-                event.preventDefault();
-                const datetime = `${$('#day').val()}-${$('#month').val()}-${$('#year').val()} ${$('#hour').val()}:${$('#minute').val()}`;
-                const location = $('#location').val();
-                fetchLunarInfo(datetime, location);
+            // Autocompletar la ubicación
+            $('#location').typeahead({
+                source: function(query, process) {
+                    return $.get('https://nominatim.openstreetmap.org/search', {
+                        q: query,
+                        format: 'json',
+                        addressdetails: 1,
+                        limit: 5
+                    }, function(data) {
+                        return process(data.map(item => item.display_name));
+                    });
+                },
+                minLength: 3,
+                autoSelect: true
             });
         });
     </script>
 </body>
 </html>
-
-

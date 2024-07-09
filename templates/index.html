@@ -89,7 +89,7 @@
                             <p><strong>Latitud:</strong> ${data.latitude}</p>
                             <p><strong>Longitud:</strong> ${data.longitude}</p>
                             <p><strong>Fase Lunar:</strong> ${data.lunar_phase} (${data.lunar_phase_text})</p>
-                            <p><strong>Signo Lunar:</strong> ${data.lunar_sign}</p>
+                            <p><strong>Signo Lunar:</strong> ${data.lunar_sign} (${data.moon_sign_degree.toFixed(2)}°)</p>
                             <p><strong>Luna Ascendente:</strong> ${data.moon_ascending ? 'Sí' : 'No'}</p>
                         `);
                     },
@@ -119,3 +119,4 @@
     </script>
 </body>
 </html>
+

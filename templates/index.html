@@ -10,45 +10,49 @@
     <div class="container">
         <h1 class="mt-5">Información Lunar</h1>
         <form id="lunar-form" class="mt-4">
-            <div class="form-group">
-                <label for="day">Día:</label>
-                <select id="day" class="form-control">
-                    <script>
-                        document.write([...Array(31).keys()].map(i => `<option value="${i + 1}">${i + 1}</option>`).join(''));
-                    </script>
-                </select>
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="day">Día:</label>
+                    <select id="day" class="form-control">
+                        <script>
+                            document.write([...Array(31).keys()].map(i => `<option value="${i + 1}">${i + 1}</option>`).join(''));
+                        </script>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="month">Mes:</label>
+                    <select id="month" class="form-control">
+                        <script>
+                            document.write([...Array(12).keys()].map(i => `<option value="${i + 1}">${i + 1}</option>`).join(''));
+                        </script>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="year">Año:</label>
+                    <input type="number" id="year" class="form-control" value="2024">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="hour">Hora:</label>
+                    <select id="hour" class="form-control">
+                        <script>
+                            document.write([...Array(24).keys()].map(i => `<option value="${i}">${i}</option>`).join(''));
+                        </script>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="month">Mes:</label>
-                <select id="month" class="form-control">
-                    <script>
-                        document.write([...Array(12).keys()].map(i => `<option value="${i + 1}">${i + 1}</option>`).join(''));
-                    </script>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="year">Año:</label>
-                <input type="number" id="year" class="form-control" value="2024">
-            </div>
-            <div class="form-group">
-                <label for="hour">Hora:</label>
-                <select id="hour" class="form-control">
-                    <script>
-                        document.write([...Array(24).keys()].map(i => `<option value="${i}">${i}</option>`).join(''));
-                    </script>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="minute">Minuto:</label>
-                <select id="minute" class="form-control">
-                    <script>
-                        document.write([...Array(60).keys()].map(i => `<option value="${i}">${i}</option>`).join(''));
-                    </script>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="location">Ubicación:</label>
-                <input type="text" id="location" class="form-control" placeholder="Introduce la ciudad">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="minute">Minuto:</label>
+                    <select id="minute" class="form-control">
+                        <script>
+                            document.write([...Array(60).keys()].map(i => `<option value="${i}">${i}</option>`).join(''));
+                        </script>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="location">Ubicación:</label>
+                    <input type="text" id="location" class="form-control" placeholder="Introduce la ciudad y país">
+                </div>
             </div>
             <button type="submit" class="btn btn-primary">Obtener Información Lunar</button>
         </form>
@@ -102,25 +106,13 @@
                 });
             });
 
-            $.ajax({
-                url: '/lunar_info',
-                method: 'GET',
-                data: {
-                    datetime: getCurrentDateTime(),
-                    location: 'Greenwich'
-                },
-                success: function (data) {
-                    $('#result').html(`
-                        <p><strong>Fecha y Hora:</strong> ${data.datetime}</p>
-                        <p><strong>Ubicación:</strong> ${data.location}</p>
-                        <p><strong>Latitud:</strong> ${data.latitude}</p>
-                        <p><strong>Longitud:</strong> ${data.longitude}</p>
-                        <p><strong>Fase Lunar:</strong> ${data.lunar_phase_text} (${data.lunar_phase})</p>
-                        <p><strong>Signo Lunar:</strong> ${data.lunar_sign} (${data.moon_sign_degree}°)</p>
-                        <p><strong>Elipse Lunar:</strong> ${data.moon_ascending ? 'Ascendente' : 'Descendente'}</p>
-                    `);
-                }
-            });
+            // Llenar formulario con la fecha y hora actual al cargar la página
+            const currentDateTime = getCurrentDateTime().split(' ');
+            $('#day').val(currentDateTime[0].split('-')[0]);
+            $('#month').val(currentDateTime[0].split('-')[1]);
+            $('#year').val(currentDateTime[0].split('-')[2]);
+            $('#hour').val(currentDateTime[1].split(':')[0]);
+            $('#minute').val(currentDateTime[1].split(':')[1]);
         });
     </script>
 </body>

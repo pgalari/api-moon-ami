@@ -49,14 +49,17 @@ def calculate_moon_sign(observer):
     moon_longitude = moon_obj.hlon * 180.0 / ephem.pi
     
     constellations = [
-            ('Aries', 0, 30), ('Tauro', 30, 60), ('Géminis', 60, 90),
-            ('Cáncer', 90, 120), ('Leo', 120, 150), ('Virgo', 150, 180),
-            ('Libra', 180, 210), ('Escorpio', 210, 240), ('Sagitario', 240, 270),
-            ('Capricornio', 270, 300), ('Acuario', 300, 330), ('Piscis', 330, 360)
+        ('Aries', 0, 30), ('Tauro', 30, 60), ('Géminis', 60, 90),
+        ('Cáncer', 90, 120), ('Leo', 120, 150), ('Virgo', 150, 180),
+        ('Libra', 180, 210), ('Escorpio', 210, 240), ('Sagitario', 240, 270),
+        ('Capricornio', 270, 300), ('Acuario', 300, 330), ('Piscis', 330, 360)
     ]
 
-    moon_sign = next(sign for sign, start, end in constellations if start <= moon_longitude < end)
-    return moon_sign
+    for sign, start, end in constellations:
+        if start <= moon_longitude < end:
+            degree_in_sign = moon_longitude - start
+            return sign, degree_in_sign
+    return 'Desconocida', 0
 
 @app.route('/')
 def index():
@@ -88,7 +91,7 @@ def lunar_info():
         
         hemisphere = 'north' if float(location.latitude) > 0 else 'south'
         lunar_phase_text = get_moon_phase_text(lunar_phase, hemisphere)
-        moon_sign = calculate_moon_sign(observer)
+        moon_sign, moon_sign_degree = calculate_moon_sign(observer)
         moon_ascending = is_moon_ascending(observer, moon_obj)
         
         response = {
@@ -99,6 +102,7 @@ def lunar_info():
             'lunar_phase': round(lunar_phase, 2),
             'lunar_phase_text': lunar_phase_text,
             'lunar_sign': moon_sign,
+            'moon_sign_degree': round(moon_sign_degree, 2),
             'moon_ascending': moon_ascending
         }
         
@@ -112,4 +116,3 @@ def lunar_info():
 
 if __name__ == '__main__':
     app.run(debug=True)
-

@@ -50,6 +50,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
     <script>
         $(document).ready(function () {
             // Rellenar los selectores de fecha y hora
@@ -88,35 +89,39 @@
                             <p><strong>Ubicación:</strong> ${data.location}</p>
                             <p><strong>Latitud:</strong> ${data.latitude}</p>
                             <p><strong>Longitud:</strong> ${data.longitude}</p>
-                            <p><strong>Fase Lunar:</strong> ${data.lunar_phase_text} (${data.lunar_phase})</p>
+                            <p><strong>Fase Lunar:</strong> ${data.lunar_phase} (${data.lunar_phase_text})</p>
                             <p><strong>Signo Lunar:</strong> ${data.lunar_sign} (${data.moon_sign_degree}°)</p>
-                            <p><strong>Elipse Lunar:</strong> ${data.moon_ascending ? 'Ascendente' : 'Descendente'}</p>
+                            <p><strong>Luna Ascendente:</strong> ${data.moon_ascending ? 'Sí' : 'No'}</p>
                         `);
                     },
-                    error: function (xhr, status, error) {
-                        $('#result').html(`<p>Error: ${xhr.responseJSON.error}</p>`);
+                    error: function (xhr) {
+                        $('#result').html(`<p class="text-danger">Error: ${xhr.responseJSON.error}</p>`);
                     }
                 });
             }
 
             // Obtener información lunar al cargar la página
-            const initialDatetime = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`;
-            fetchLunarInfo(initialDatetime, 'Greenwich');
+            fetchLunarInfo(`${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`, 'Greenwich');
+
+            // Configuración de autocompletado para la ubicación
+            $('#location').typeahead({
+                source: function (query, process) {
+                    return $.get('https://nominatim.openstreetmap.org/search', { q: query, format: 'json' }, function (data) {
+                        return process(data.map(item => item.display_name));
+                    });
+                }
+            });
 
             // Manejar el envío del formulario
             $('#lunar-form').submit(function (event) {
                 event.preventDefault();
-                const day = $('#day').val();
-                const month = $('#month').val();
-                const year = $('#year').val();
-                const hour = $('#hour').val();
-                const minute = $('#minute').val();
+                const datetime = `${$('#day').val()}-${$('#month').val()}-${$('#year').val()} ${$('#hour').val()}:${$('#minute').val()}`;
                 const location = $('#location').val();
-                const datetime = `${day}-${month}-${year} ${hour}:${minute}`;
                 fetchLunarInfo(datetime, location);
             });
         });
     </script>
 </body>
 </html>
+
 

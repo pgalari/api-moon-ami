@@ -88,9 +88,9 @@
                             <p><strong>Ubicación:</strong> ${data.location}</p>
                             <p><strong>Latitud:</strong> ${data.latitude}</p>
                             <p><strong>Longitud:</strong> ${data.longitude}</p>
-                            <p><strong>Fase Lunar:</strong> ${data.lunar_phase} (${data.lunar_phase_text})</p>
-                            <p><strong>Signo Lunar:</strong> ${data.lunar_sign} (${data.moon_sign_degree.toFixed(2)}°)</p>
-                            <p><strong>Luna Ascendente:</strong> ${data.moon_ascending ? 'Sí' : 'No'}</p>
+                            <p><strong>Fase Lunar:</strong> ${data.lunar_phase_text} (${data.lunar_phase})</p>
+                            <p><strong>Signo Lunar:</strong> ${data.lunar_sign} (${data.moon_sign_degree}°)</p>
+                            <p><strong>Elipse Lunar:</strong> ${data.moon_ascending ? 'Ascendente' : 'Descendente'}</p>
                         `);
                     },
                     error: function (xhr, status, error) {

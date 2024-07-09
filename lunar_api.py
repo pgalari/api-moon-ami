@@ -1,9 +1,15 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from datetime import datetime
 import swisseph as swe
 from geopy.geocoders import Nominatim
+import os
+import pytz
 
 app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/lunar_info', methods=['GET'])
 def lunar_info():
@@ -24,9 +30,9 @@ def lunar_info():
 
         # Calcular la fase lunar y signo lunar usando Swiss Ephemeris
         jd = swe.julday(date_time.year, date_time.month, date_time.day, date_time.hour + date_time.minute / 60.0)
-        moon_pos = swe.calc_ut(jd, swe.MOON)[0]
+        moon_pos = swe.calc_ut(jd, swe.MOON)
         moon_longitude = moon_pos[0]
-        
+
         # Definir los signos zodiacales y sus rangos en grados
         constellations = [
             ('Aries', 0, 30), ('Tauro', 30, 60), ('Géminis', 60, 90),
@@ -40,7 +46,7 @@ def lunar_info():
         sign_degree = moon_longitude % 30
 
         # Calcular la fase lunar (simplificada)
-        sun_pos = swe.calc_ut(jd, swe.SUN)[0]
+        sun_pos = swe.calc_ut(jd, swe.SUN)
         phase_angle = (moon_longitude - sun_pos[0]) % 360
         lunar_phase = (phase_angle / 45) + 1
         lunar_phase = round(lunar_phase % 8)
@@ -63,7 +69,7 @@ def lunar_info():
             'moon_ascending': True,  # Simplificación, necesitas calcularlo adecuadamente si es necesario
             'moon_sign_degree': round(sign_degree, 2)
         }
-        
+
         return jsonify(response)
 
     except Exception as e:
